@@ -1,0 +1,23 @@
+{
+  "paper_version": "evf_1.9",
+  "primary_display_budget_tokens": 240,
+  "qasper_test": {
+    "n_questions": 1164,
+    "n_documents": 396,
+    "bge_paragraph_character_recall": 0.360,
+    "bge_chunk_character_recall": 0.391,
+    "bge_chunk_minus_paragraph_pp": 3.15,
+    "bge_chunk_minus_paragraph_ci95_pp": [1.86, 4.48]
+  },
+  "evidence_inference_untouched_test": {
+    "n_prompts": 953,
+    "n_articles": 239,
+    "bge_paragraph_character_recall": 0.187,
+    "bge_chunk_character_recall": 0.324,
+    "bge_chunk_minus_paragraph_pp": 13.70,
+    "bge_chunk_minus_paragraph_ci95_pp": [9.03, 18.30],
+    "bm25_chunk_minus_paragraph_pp": 13.82,
+    "bm25_chunk_minus_paragraph_ci95_pp": [9.76, 17.96]
+  },
+  "interpretation": "Evidence-visibility endpoint under equal maximum displayed-text budgets; realized token use can differ. This is not an answer-correctness, evidence-sufficiency, comprehension, or clinical-utility endpoint."
+}

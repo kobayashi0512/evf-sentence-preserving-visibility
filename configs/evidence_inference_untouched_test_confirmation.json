@@ -1,0 +1,34 @@
+{
+  "status": "frozen_before_scoring_untouched_official_test_articles",
+  "dataset": {
+    "name": "Evidence Inference 2.0 official test split, excluding previously inspected EV2 subset",
+    "source": "https://evidence-inference.ebm-nlp.com/v2.0.tar.gz",
+    "release_sha256": "6abe0d4ec0d331834981c0171c3c79d47515761867f82f1dc6066e43863a1586",
+    "scope": "article-disjoint out-of-domain confirmation after development-split analysis",
+    "exclusion": "exclude every source article in data/evidence_inference/ev2_test_article_ids.txt because prior Evidence Watchdog experiments inspected that EV2-only subset; use all remaining official test-split articles that join to prompts"
+  },
+  "question": "Does the frozen sentence-preserving subdivision improve annotator-rationale visibility at a fixed displayed-text budget on official test articles not previously examined in this project?",
+  "cohort": {
+    "include": "remaining test-split prompts with at least one Valid Label=true and Valid Reasoning=true annotation with valid in-bounds source offsets",
+    "annotation_handling": "group spans by PromptID and UserID; union spans only within annotator; average annotators within prompt; average prompts",
+    "overlap_checks": "require zero overlap with train, validation, and previously inspected EV2 test article IDs",
+    "selection": "source-ID exclusion only; no annotation or model outcome used for article inclusion"
+  },
+  "method": "Use the exact candidate construction, BGE/BM25 scoring, token-cost definition, ranking, whole-unit packing, budgets, endpoints, and paired article-cluster bootstrap frozen in evidence_inference_official_dev_chunk_confirmation.json. No tuning or protocol changes.",
+  "primary_endpoint": "BGE chunk-minus-paragraph source-character recall at 240 BGE-token budget",
+  "secondary_endpoints": [
+    "any-hit and complete rationale coverage",
+    "same outcomes at 544 tokens",
+    "BM25 chunk-minus-paragraph contrasts",
+    "long/short rationale-bearing source paragraph strata",
+    "token utilization, segmentation exceptions, offset exclusions, and pair truncation"
+  ],
+  "uncertainty": {
+    "method": "paired percentile cluster bootstrap",
+    "cluster": "source article PMCID",
+    "resamples": 20000,
+    "seed": 20261016,
+    "primary_test": "two-sided 95% interval; no test-set tuning"
+  },
+  "interpretation_boundary": "evidence-text visibility only; does not establish evidence sufficiency, answer correctness, reader benefit, or clinical decision impact"
+}

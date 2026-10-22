@@ -1,0 +1,5 @@
+torch>=2.2
+transformers>=4.45,<5
+huggingface-hub>=0.24,<1
+numpy>=1.26,<3
+pysbd==0.3.4

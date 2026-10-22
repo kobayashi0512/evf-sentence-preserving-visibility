@@ -1,0 +1,62 @@
+{
+  "status": "frozen_before_new_article_validation_scoring",
+  "dataset": {
+    "name": "Evidence Inference 2.0 official validation split",
+    "source": "https://github.com/jayded/evidence-inference at commit a661e8c14f973398380c8865cf2f27a535aaaf6d",
+    "access": "public download; no registration or data-access approval required",
+    "scope": "article-disjoint cross-domain validation of the frozen QASPER sentence-chunking result; same Evidence Inference benchmark family as a previously explored test subset, so not an independent benchmark family",
+    "article_sample": "include all validation article IDs satisfying int(SHA256('evidence-watchdog-ev2val-20261016:' + PMCID)[0:8], 16) modulo 4 == 0; this source-article sample rule is fixed without using annotations or model outcomes; include every eligible prompt and valid annotator rationale for sampled articles",
+    "overlap_rule": "verify zero overlap with the official Evidence Inference train and test article-ID lists and with the previously evaluated 94 test articles"
+  },
+  "question": "Does sentence-preserving subdivision of over-budget paragraphs improve visibility of annotator-accepted rationale spans under a fixed display-token budget in held-out biomedical trial articles, and does the long-versus-short source-paragraph trade-off observed in QASPER recur?",
+  "cohort": {
+    "include": "all prompts in sampled articles having at least one Valid Label=true and Valid Reasoning=true annotation with in-bounds source offsets",
+    "annotation_handling": "group spans by prompt and annotator; combine spans only within the same annotator; score each annotator rationale separately, average annotator scores within prompt, then average prompts",
+    "prompt": "official outcome/intervention/comparator fields, rendered with the frozen wording used in the prior Evidence Inference audit",
+    "source_offsets": "inclusive character offsets from the official annotation CSV; convert to half-open intervals for computation"
+  },
+  "candidate_units": {
+    "baseline": "nonempty original source paragraphs parsed using the frozen double-newline block rule and original source offsets",
+    "treatment": "paragraphs at or below 240 BGE-token units remain intact; longer paragraphs greedily group adjacent complete sentences with PySBD 0.3.4 English char-span mode, no cleaning, no overlap, offsets retained; over-cap single sentences remain intact and are flagged; if invalid/overlapping offsets occur, retain the source paragraph unsplit and flag fallback",
+    "selector_inputs": "same outcome/intervention/comparator query for both unitizations",
+    "tokenizer": "locally cached BAAI/bge-reranker-v2-m3 fast tokenizer; source-unit token cost excludes query and special tokens",
+    "BGE_pair_max_length": 512
+  },
+  "selectors": [
+    "document-local BM25",
+    "zero-shot BGE cross-encoder"
+  ],
+  "packing": {
+    "policy": "descending selector score, earlier source position breaks ties, retain whole units that fit and skip units that do not",
+    "primary_output_budget_bge_tokens": 240,
+    "secondary_output_budget_bge_tokens": 544
+  },
+  "outcomes": {
+    "primary": "per-prompt mean across annotators of source-character recall over accepted rationale spans at 240 tokens",
+    "primary_contrast": "BGE sentence-preserving chunks minus original paragraphs, paired within prompt and clustered by source article",
+    "secondary": [
+      "any rationale character covered",
+      "complete accepted-span coverage per annotator",
+      "zero-hit and partial-hit rates",
+      "same outcomes at 544 tokens",
+      "actual token-budget utilization",
+      "rationale visibility split by original source paragraphs >240 versus <=240 BGE tokens",
+      "BGE pair truncation rates"
+    ],
+    "interpretation_boundary": "annotator-accepted rationale visibility; not exhaustive evidence sufficiency, clinical inference accuracy, user comprehension, or decision quality"
+  },
+  "uncertainty": {
+    "method": "paired percentile cluster bootstrap",
+    "cluster": "source article PMCID; preserve all sampled prompts and annotators per sampled article",
+    "resamples": 20000,
+    "seed": 20261019,
+    "primary_test": "two-sided 95% interval for the 240-token BGE chunk-minus-paragraph character-recall contrast; no tuning on this sample"
+  },
+  "reproducibility": {
+    "source_commit": "a661e8c14f973398380c8865cf2f27a535aaaf6d",
+    "model_weights": "local models/bge-reranker-v2-m3 snapshot",
+    "article_sample_manifest": "save sampled source IDs and selection hashes before scoring",
+    "redistribution": "do not redistribute source article text; check article-specific PMC reuse terms before any public packaging",
+    "reporting": "report all exclusions, overlap checks, and all prespecified outcomes, including null or adverse results"
+  }
+}

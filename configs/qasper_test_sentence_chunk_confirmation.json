@@ -1,0 +1,66 @@
+{
+  "status": "protocol_frozen_before_qasper_test_outcome_analysis",
+  "dataset": {
+    "name": "QASPER v0.3 official test split",
+    "source": "https://qasper-dataset.s3.us-west-2.amazonaws.com/qasper-test-and-evaluator-v0.3.tgz",
+    "license": "CC BY 4.0, as listed on the official Hugging Face dataset card",
+    "scope": "new source papers within the previously studied QASPER benchmark family; not an independent benchmark family",
+    "use_rule": "evaluate only the frozen selectors and segmentation rule; no tuning or data-driven rule changes after test scoring"
+  },
+  "question": "Does sentence-preserving subdivision of over-budget paragraphs increase the visibility of human-annotated textual evidence under the same output-token budget, relative to intact paragraph units?",
+  "cohort": {
+    "include": "answerable questions with at least one textual evidence annotation that can be mapped to source text",
+    "annotation_handling": "score each textual answer annotation as an alternative annotation, average annotation scores within question, then average questions; cluster bootstrap by source paper",
+    "float_evidence": "exclude from the primary text-only endpoint and report its count separately",
+    "unaligned_evidence": "exclude an annotation from the primary endpoint if any textual evidence item cannot be mapped to the paper; report alignment coverage and exclusions"
+  },
+  "candidate_units": {
+    "baseline": "original nonempty body paragraphs, preserving source order and offsets",
+    "treatment": "paragraphs at or below 240 BGE-token units remain intact; longer paragraphs are greedily grouped into adjacent complete sentences with PySBD 0.3.4 English char-span mode, no cleaning, no overlap, source offsets retained; a sentence over 240 tokens remains intact and is flagged; if PySBD returns invalid or overlapping offsets, retain that source paragraph unsplit and flag a segmentation fallback",
+    "ranking": "score every candidate unit independently using the same query and the same frozen zero-shot selector; no gold annotation enters candidate ranking",
+    "selector_input_limit": 512,
+    "tokenizer": "locally cached BAAI/bge-reranker-v2-m3 fast tokenizer; unit cost excludes query and special tokens"
+  },
+  "selectors": [
+    "document-local BM25",
+    "zero-shot BGE cross-encoder"
+  ],
+  "packing": {
+    "policy": "rank candidates by descending score, break ties by earlier source position, retain whole units that fit and skip units that do not",
+    "primary_output_budget_bge_tokens": 240,
+    "secondary_output_budget_bge_tokens": 544
+  },
+  "outcomes": {
+    "primary": "mean per-annotation character recall over exact source-aligned textual evidence spans at 240 tokens",
+    "primary_contrast": "sentence-preserving units minus intact-paragraph units, paired within question and selector",
+    "secondary": [
+      "any evidence character covered",
+      "complete evidence-character coverage",
+      "zero-hit and partial-hit rates",
+      "same contrasts at 544 tokens",
+      "realized budget utilization",
+      "annotation-to-source alignment rate",
+      "fraction of selected and missed gold characters in source paragraphs exceeding 240 tokens",
+      "BGE query-candidate pair truncation rates, including evidence-bearing units"
+    ],
+    "interpretation_boundary": "measures visibility of annotated textual evidence, not sufficiency of evidence, answer correctness, reader comprehension, or clinical/scientific decision quality"
+  },
+  "uncertainty": {
+    "method": "paired percentile cluster bootstrap",
+    "cluster": "source paper ID; preserve all questions and annotations within sampled papers",
+    "resamples": 20000,
+    "seed": 20261016,
+    "primary_test": "two-sided 95% interval for the 240-token BGE chunk-minus-paragraph primary contrast; no tuning based on this test"
+  },
+  "reproducibility": {
+    "model_weights": "local models/bge-reranker-v2-m3 snapshot",
+    "candidate_text": "official QASPER test package retained locally and excluded from redistribution",
+    "raw_rows": "save per-question, per-annotation scores and source IDs; do not publish paper text",
+    "reporting": "report every prespecified endpoint and exclusions, including null or adverse results"
+  },
+  "engineering_amendment_before_scoring": {
+    "reason": "one QASPER paragraph produced overlapping sentence offsets under PySBD; the runner stopped before any model outcomes were produced",
+    "change": "conservatively retain only a paragraph with invalid segmenter offsets as a single flagged candidate instead of attempting a lossy repair",
+    "analysis_status": "pre-scoring engineering amendment; all such cases are counted and reported"
+  }
+}

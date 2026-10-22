@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the associated paper and the original dataset and model sources."
+title: "Evidence Visibility under Fixed Display Budgets"
+type: software
+version: 1.0.0
+date-released: 2026-10-22
+authors:
+  - family-names: Deng
+    given-names: Kaiwen
+  - family-names: Liu
+    given-names: Liwei
+repository-code: "https://github.com/kobayashi0512/evf-sentence-preserving-visibility"
+license: MIT

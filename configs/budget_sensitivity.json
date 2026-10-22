@@ -1,0 +1,22 @@
+{
+  "status": "initial_grid_frozen_before_rerun; full QASPER attempt stopped before output due an extreme-length item; follow-up scope frozen to full Evidence Inference validation curve",
+  "question": "How do evidence-span visibility and the chunk-minus-paragraph contrast change as the displayed-text budget changes?",
+  "unitization": "Hold the previously frozen sentence-preserving unitization cap at 240 BGE-tokenizer source tokens. Do not change chunk boundaries in this experiment.",
+  "budgets": [120, 180, 240, 360, 480, 544, 720, 960],
+  "comparators": ["BM25_paragraph", "BGE_paragraph", "BM25_chunk", "BGE_chunk"],
+  "endpoints": ["character_recall", "any_hit", "complete"],
+  "uncertainty": {
+    "method": "paired percentile cluster bootstrap",
+    "cluster": "source article",
+    "resamples": 20000,
+    "seed": 20261017
+  },
+  "initially_intended_datasets": [
+    "QASPER official v0.3 test papers",
+    "Evidence Inference 2.0 full official validation split with eligible rationale offsets",
+    "Evidence Inference 2.0 official test subset excluding the previously inspected EV2-only subset"
+  ],
+  "realized_follow_up_scope": "Full budget curve on the complete Evidence Inference 2.0 validation cohort only. Do not rerun the touched test subset for budget selection; retain its original 240/544 results as held-out anchors. The QASPER full-grid run was interrupted before any output was saved.",
+  "interpretation": "Report every prespecified budget point, do not select the best point, and treat the test-set curve as a sensitivity analysis rather than an untouched confirmatory test. The displayed-text budget is varied; candidate-unit maximum, model, candidate scoring, and packing rule remain fixed.",
+  "important_caveat": "Budgets below the 240-token candidate-unit cap may leave some whole chunks unable to fit. This is part of the operational whole-unit selection policy and must be reported, not silently bypassed by truncating units."
+}

@@ -1,0 +1,28 @@
+# Downloaded source data and model files
+data/
+models/
+outputs/
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.safetensors
+*.bin
+*.h5
+
+# Python environments and generated files
+.venv/
+.venv*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Per-item outputs can contain benchmark identifiers or derived row-level data
+per_prompt.json
+per_question.json
+per_item.jsonl
